@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>Lista de Precios - Laboratorio Dental</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    header {
+      background: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .container {
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    /* 👇 PC (por defecto) */
+    .card {
+      background: white;
+      border-radius: 15px;
+      padding: 12px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+      gap: 10px;
+    }
+
+    .card:hover {
+      transform: scale(1.04);
+      box-shadow: 0 8px 22px rgba(0,0,0,0.25);
+    }
+
+    .price {
+      font-weight: bold;
+      color: #0077ff;
+      font-size: 18px;
+      white-space: nowrap;
+    }
+
+    .btn-img {
+      background: #0077ff;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+
+    .btn-img:hover {
+      background: #005fcc;
+    }
+
+    .category {
+      font-size: 12px;
+      color: gray;
+    }
+
+    /* 👇 SOLO móvil */
+    @media (max-width: 600px) {
+      header {
+        font-size: 18px;
+      }
+
+      .card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px;
+      }
+
+      .price {
+        font-size: 16px;
+        text-align: left;
+      }
+    }
+
+    /* SPLASH PRO */
+    #splash {
+      position: fixed;
+      top:0;left:0;
+      width:100%;height:100%;
+      background: linear-gradient(135deg,#4facfe,#00f2fe);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      flex-direction:column;
+      color:white;
+      z-index:9999;
+      animation: fadeOut 1s ease forwards;
+      animation-delay: 2s;
+      text-align:center;
+    }
+
+    #splash h1{
+      font-size:30px;
+      margin:0;
+      animation: zoomIn 1s ease;
+    }
+
+    #splash p{
+      margin-top:10px;
+      opacity:.9;
+      animation: fadeIn 2s ease;
+    }
+
+    #splash img{
+      margin-top:20px;
+      max-width:300px;
+      width:90%;
+      height:auto;
+      border-radius:12px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.15);
+      animation: zoomIn 1s ease;
+    }
+
+    @keyframes zoomIn{
+      from{transform:scale(0.7);opacity:0;}
+      to{transform:scale(1);opacity:1;}
+    }
+
+    @keyframes fadeIn{
+      from{opacity:0;}
+      to{opacity:1;}
+    }
+
+    @keyframes fadeOut{
+      to{opacity:0;visibility:hidden;}
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- IMAGEN SUPERIOR -->
+<div style="text-align:center; padding: 20px; background: white;">
+  <img src="https://i.postimg.cc/F72kdZJQ/Multident-Logo.png" alt="Logo Multident International" style="max-width:500px; width:100%; height:auto; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+</div>
+
+<!-- SPLASH CON LOGO ANIMADO -->
+<div id="splash">
+  <h1>🦷 Multident International</h1>
+  <p>Laboratorio Dental</p>
+  <img src="https://i.postimg.cc/F72kdZJQ/Multident-Logo.png" alt="Logo Multident International">
+  <audio id="sound" autoplay>
+    <source src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+<header>
+  <div style="font-size:26px;">🦷 Multident International Laboratorio Dental</div>
+  <div style="font-size:14px;font-weight:normal;color:gray;">
+    Especialistas en prótesis fija, removible y ortodoncia
+  </div>
+</header>
+
+<div class="container">
+  <input type="text" id="search" placeholder="Buscar por nombre o categoría..." onkeyup="filterItems()">
+  <div id="list"></div>
+</div>
+
+<script>
+const items = [
+  {name:"Corona ivocron tipo ceramico",price:50,category:"Coronas",group:"Prótesis fijas"},
+  {name:"Corona jacket, ivocron",price:50,category:"Ivocron",group:"Prótesis fijas"},
+  {name:"Cubeta individual",price:20,category:"Otros"},
+  {name:"Corona acrilico rapido",price:25,category:"Otros"},
+  {name:"Corona acrilico lento",price:35,category:"Otros"},
+  {name:"Corona metal porcelana",price:80,category:"Coronas",group:"Prótesis fijas"},
+  {name:"Corona veneer porcelana",price:80,category:"Coronas",group:"Prótesis fijas"},
+  {name:"Corona metal porcelana con hombro cerámico",price:90,category:"Coronas",group:"Prótesis fijas"},
+  {name:"Corona / carilla zirconio porcelana",price:170,category:"Zirconio",group:"Prótesis fijas"},  
+  {name:"Carillas / corona de cerómero",price:150,category:"Coronas",group:"Prótesis fijas"},
+  {name:"Incrustación de cerómero (depende tamaño) DESDE",price:120,category:"Incrustaciones",group:"Prótesis fijas"},
+  {name:"Corona zirconio sobre implante",price:250,category:"Zirconio",group:"Prótesis fijas"},
+  {name:"Corona metal porcelana sobre implante",price:160,category:"Implantes",group:"Prótesis fijas"},
+  {name:"Coronas / carillas zirconio multilayer",price:250,category:"Zirconio",group:"Prótesis fijas"},
+  {name:"Coronas metal porcelana sistema digital",price:95,category:"Coronas",group:"Prótesis fijas"},
+  {name:"Base metálica",price:200,category:"Prótesis",group:"Prótesis parcial removible"},
+  {name:"Base metálica mixta",price:300,category:"Prótesis",group:"Prótesis parcial removible"},
+  {name:"Prótesis wipla",price:120,category:"Prótesis",group:"Prótesis parcial removible"},
+  {name:"Prótesis total superior",price:120,category:"Prótesis",group:"Prótesis totales"},
+  {name:"Prótesis total inferior",price:120,category:"Prótesis",group:"Prótesis totales"},
+  {name:"Acrílico triplex",price:35,category:"Otros",group:"Adicionales"},
+  {name:"Dientes ivostar (cada tableta)",price:30,category:"Dientes",group:"Adicionales"},
+  {name:"Dientes ortolux (cada tableta)",price:20,category:"Dientes",group:"Adicionales"},
+  {name:"Prótesis flexible",price:220,category:"Prótesis",group:"Prótesis flexibles"},
+  {name:"Flexible unilateral 1-2 dientes",price:180,category:"Prótesis",group:"Prótesis flexibles"},
+  {name:"Inyectado y pulido",price:180,category:"Otros",group:"Prótesis flexibles"},
+  {name:"Solo inyectado desde modelo",price:110,category:"Otros",group:"Prótesis flexibles"},
+  {name:"Inyectado mufla mediana",price:70,category:"Otros",group:"Prótesis flexibles"},
+  {name:"Inyectado mufla grande",price:75,category:"Otros",group:"Prótesis flexibles"},
+  {name:"Hyrax",price:170,category:"Ortodoncia",group:"Ortodoncia"},
+  {name:"Tornillo de expansión",price:85,category:"Ortodoncia",group:"Ortodoncia"},
+  {name:"Placa tipo hawley",price:65,category:"Ortodoncia",group:"Ortodoncia"},
+  {name:"Botón de nance",price:65,category:"Ortodoncia",group:"Ortodoncia"},
+  {name:"ATP",price:65,category:"Ortodoncia",group:"Ortodoncia"},
+  {name:"Mantenedor de espacio",price:60,category:"Ortodoncia",group:"Ortodoncia"},
+  {name:"Botón de nance + ATP",price:90,category:"Ortodoncia",group:"Ortodoncia"},
+  {name:"Arco lingual",price:65,category:"Ortodoncia",group:"Ortodoncia"},
+  {name:"Placa base y rodete",price:15,category:"Ortodoncia",group:"Adicionales"},
+  {name:"Malla nacional",price:20,category:"Ortodoncia",group:"Adicionales"},
+  {name:"Malla nacional",price:25,category:"Ortodoncia",group:"Adicionales"},
+  {name:"Dientes convencionales (cada tableta)",price:10,category:"Dientes",group:"Adicionales"},
+  {name:"1 diente ivostar",price:5,category:"Dientes",group:"Adicionales"},
+  {name:"Encerado por pieza",price:15,category:"Otros"},
+  {name:"Perno indirecto",price:30,category:"Perno",group:"Prótesis fijas"},
+  {name:"Perno directo",price:25,category:"Perno",group:"Prótesis fijas"},
+  {name:"Perno tapa",price:30,category:"Perno",group:"Prótesis fijas"},
+  {name:"Ataches C/U",price:150,category:"Otros"},
+  {name:"Férula acetato",price:40,category:"Otros"},
+  {name:"Férula acrílico",price:80,category:"Otros"},
+  {name:"Reparación de prótesis",price:50,category:"Prótesis"},
+  {name:"Rebasado de prótesis",price:50,category:"Prótesis"},
+  {name:"Incrustación NPG",price:50,category:"Incrustaciones",group:"Prótesis fijas"},
+  {name:"Incrustación de zirconio",price:170,category:"Zirconio",group:"Prótesis fijas"},
+  {name:"Fenestrada plateada/dorada",price:15,category:"otros",group:"Adicionales"},
+  {name:"Incrustación de metal",price:50,category:"Incrustaciones",group:"Prótesis fijas"},
+  {name:"Incrustación de metal con porcelana",price:80,category:"Incrustaciones",group:"Prótesis fijas"}
+];
+
+function displayItems(list){
+  const container=document.getElementById("list");
+  container.innerHTML="";
+
+  const secciones = [
+    "Prótesis fijas",
+    "Prótesis parcial removible",
+    "Prótesis flexibles",
+    "Ortodoncia",
+    "Prótesis totales",
+    "Adicionales",
+    "Otros"
+  ];
+
+  secciones.forEach(sec=>{
+    container.innerHTML += `
+      <div class="card" style="background:#0077ff;color:white;font-weight:bold;">${sec}</div>
+    `;
+
+    const filtrados = list.filter(i => {
+      if(sec === "Otros") return !i.group || i.group === "Otros";
+      return i.group === sec;
+    });
+
+    if(sec === "Prótesis fijas"){
+      const zirconio = filtrados.filter(i => i.category.toLowerCase().includes("zirconio"));
+      const otros = filtrados.filter(i => {
+        const name = i.name.toLowerCase();
+        const cat = i.category.toLowerCase();
+        return (cat === "otros" || cat.includes("ceromero") || cat.includes("cerómero") || name.includes("ceromero") || name.includes("cerómero") || (name.includes("jacket") && name.includes("ivocron")));
+      });
+      const metal = filtrados.filter(i => {
+        const name = i.name.toLowerCase();
+        const cat = i.category.toLowerCase();
+        return (!cat.includes("zirconio") && cat !== "otros" && !cat.includes("ceromero") && !cat.includes("cerómero") && !name.includes("ceromero") && !name.includes("cerómero") && !(name.includes("jacket") && name.includes("ivocron")));
+      });
+      const styleSub = 'background:#e6f0ff;color:#0077ff;font-weight:bold;';
+      if(zirconio.length > 0){
+        container.innerHTML += `<div class="card" style="${styleSub}">Zirconio</div>`;
+        zirconio.forEach(item=>{
+          container.innerHTML+=`
+            <div class="card">
+              <div>
+                <div>${item.name}</div>
+                <div class="category">${item.category}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="price">S/${item.price}</div>
+                <button class="btn-img" onclick="verImagenes('${item.name}')">Ver</button>
+              </div>
+            </div>
+          `;
+        });
+      }
+      if(metal.length > 0){
+        container.innerHTML += `<div class="card" style="${styleSub}">Metal</div>`;
+        metal.forEach(item=>{
+          container.innerHTML+=`
+            <div class="card">
+              <div>
+                <div>${item.name}</div>
+                <div class="category">${item.category}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="price">S/${item.price}</div>
+                <button class="btn-img" onclick="verImagenes('${item.name}')">Ver</button>
+              </div>
+            </div>
+          `;
+        });
+      }
+      if(otros.length > 0){
+        container.innerHTML += `<div class="card" style="${styleSub}">Otros</div>`;
+        otros.forEach(item=>{
+          container.innerHTML+=`
+            <div class="card">
+              <div>
+                <div>${item.name}</div>
+                <div class="category">${item.category}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="price">S/${item.price}</div>
+                <button class="btn-img" onclick="verImagenes('${item.name}')">Ver</button>
+              </div>
+            </div>
+          `;
+        });
+      }
+    } else {
+      filtrados.forEach(item=>{
+        container.innerHTML+=`
+          <div class="card">
+            <div>
+              <div>${item.name}</div>
+              <div class="category">${item.category}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="price">S/${item.price}</div>
+              <button class="btn-img" onclick="verImagenes('${item.name}')">Ver</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+  });
+}
+
+function filterItems(){
+  const search=document.getElementById("search").value.toLowerCase();
+  const filtered=items.filter(item=> item.name.toLowerCase().includes(search) || item.category.toLowerCase().includes(search));
+  displayItems(filtered);
+}
+
+displayItems(items);
+
+function verImagenes(nombre){
+  const query = encodeURIComponent(nombre + " dental");
+  const url = `https://www.google.com/search?tbm=isch&q=${query}`;
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
+</script>
+
+<!-- Botón WhatsApp -->
+<a href="https://wa.me/51991148547" target="_blank" 
+   style="position:fixed;bottom:20px;right:20px;background:#25D366;color:white;
+   padding:16px 24px;border-radius:40px;text-decoration:none;font-size:16px;
+   display:flex;align-items:center;gap:10px;font-weight:bold;
+   box-shadow:0 6px 16px rgba(0,0,0,0.35);">
+   <span style="font-size:22px;">📲</span>
+   Contactar por WhatsApp
+</a>
+
+<!-- Botón Consultar IA -->
+<a href="https://chat.openai.com/?q=Quiero%20consultar%20sobre%20un%20tratamiento%20dental" target="_blank"
+   style="position:fixed;bottom:90px;right:20px;background:#111;color:white;
+   padding:16px 24px;border-radius:40px;text-decoration:none;font-size:15px;
+   display:flex;align-items:center;gap:10px;font-weight:bold;
+   box-shadow:0 6px 16px rgba(0,0,0,0.35);">
+   <span style="font-size:22px;">🤖</span>
+   Consultar con IA
+</a>
+
+</body>
+</html>
